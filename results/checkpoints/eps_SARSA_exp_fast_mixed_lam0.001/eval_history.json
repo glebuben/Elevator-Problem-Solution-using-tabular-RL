@@ -1,0 +1,202 @@
+[
+  {
+    "step": 200000,
+    "epsilon": 0.3981071705519818,
+    "avg_reward": -1319.7781,
+    "avg_wait_i": 740.2444444444444,
+    "served": 43,
+    "is_best": true
+  },
+  {
+    "step": 400000,
+    "epsilon": 0.15848931924490475,
+    "avg_reward": -46.9126,
+    "avg_wait_i": 37.82222222222222,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 600000,
+    "epsilon": 0.06309573444729878,
+    "avg_reward": -0.1436,
+    "avg_wait_i": 4.266666666666667,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 800000,
+    "epsilon": 0.025118864314713333,
+    "avg_reward": -0.1663,
+    "avg_wait_i": 4.488888888888889,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1000000,
+    "epsilon": 0.01,
+    "avg_reward": -508.4131,
+    "avg_wait_i": 293.06666666666666,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1200000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0506,
+    "avg_wait_i": 3.2888888888888888,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 1400000,
+    "epsilon": 0.01,
+    "avg_reward": -658.1865,
+    "avg_wait_i": 416.4222222222222,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.1289,
+    "avg_wait_i": 3.7111111111111112,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1800000,
+    "epsilon": 0.01,
+    "avg_reward": -187.5112,
+    "avg_wait_i": 119.46666666666667,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2000000,
+    "epsilon": 0.01,
+    "avg_reward": -0.2618,
+    "avg_wait_i": 4.844444444444444,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2200000,
+    "epsilon": 0.01,
+    "avg_reward": -160.6368,
+    "avg_wait_i": 116.75555555555556,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2400000,
+    "epsilon": 0.01,
+    "avg_reward": -555.6212,
+    "avg_wait_i": 306.93333333333334,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.1978,
+    "avg_wait_i": 4.444444444444445,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2800000,
+    "epsilon": 0.01,
+    "avg_reward": -36.876,
+    "avg_wait_i": 46.82222222222222,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3000000,
+    "epsilon": 0.01,
+    "avg_reward": -76.9802,
+    "avg_wait_i": 52.266666666666666,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3200000,
+    "epsilon": 0.01,
+    "avg_reward": -0.8014,
+    "avg_wait_i": 6.666666666666667,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3400000,
+    "epsilon": 0.01,
+    "avg_reward": -0.1361,
+    "avg_wait_i": 3.7333333333333334,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.2432,
+    "avg_wait_i": 4.5777777777777775,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3800000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0527,
+    "avg_wait_i": 3.488888888888889,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4000000,
+    "epsilon": 0.01,
+    "avg_reward": -111.2591,
+    "avg_wait_i": 94.08888888888889,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4200000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0443,
+    "avg_wait_i": 3.2,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 4400000,
+    "epsilon": 0.01,
+    "avg_reward": -641.9403,
+    "avg_wait_i": 320.5777777777778,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.2556,
+    "avg_wait_i": 4.933333333333334,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4800000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0541,
+    "avg_wait_i": 3.6444444444444444,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 5000000,
+    "epsilon": 0.01,
+    "avg_reward": -157.0191,
+    "avg_wait_i": 113.62222222222222,
+    "served": 45,
+    "is_best": false
+  }
+]

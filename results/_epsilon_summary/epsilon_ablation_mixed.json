@@ -1,0 +1,180 @@
+{
+  "config": {
+    "train_steps": 5000000,
+    "lam": 0.001,
+    "traffic": "mixed",
+    "agent_types": [
+      "q_learning",
+      "sarsa"
+    ],
+    "constant_epsilons": [
+      1.0,
+      0.5,
+      0.1,
+      0.01
+    ]
+  },
+  "results": {
+    "Q-learning_const_eps1.0": {
+      "path": "results\\eps_Q-learning_const_eps1.0_mixed_lam0.001\\best.npz",
+      "best_reward": -0.035,
+      "best_wait_i": 3.066666666666667,
+      "best_step": 4800000,
+      "schedule": "const_eps1.0",
+      "agent": "Q-learning"
+    },
+    "Q-learning_const_eps0.5": {
+      "path": "results\\eps_Q-learning_const_eps0.5_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0348,
+      "best_wait_i": 3.1555555555555554,
+      "best_step": 3600000,
+      "schedule": "const_eps0.5",
+      "agent": "Q-learning"
+    },
+    "Q-learning_const_eps0.1": {
+      "path": "results\\eps_Q-learning_const_eps0.1_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0507,
+      "best_wait_i": 3.577777777777778,
+      "best_step": 4000000,
+      "schedule": "const_eps0.1",
+      "agent": "Q-learning"
+    },
+    "Q-learning_const_eps0.01": {
+      "path": "results\\eps_Q-learning_const_eps0.01_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0528,
+      "best_wait_i": 3.6,
+      "best_step": 2400000,
+      "schedule": "const_eps0.01",
+      "agent": "Q-learning"
+    },
+    "Q-learning_linear_default": {
+      "path": "results\\eps_Q-learning_linear_default_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0379,
+      "best_wait_i": 3.311111111111111,
+      "best_step": 1200000,
+      "schedule": "linear_default",
+      "agent": "Q-learning"
+    },
+    "Q-learning_linear_slow": {
+      "path": "results\\eps_Q-learning_linear_slow_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0346,
+      "best_wait_i": 2.933333333333333,
+      "best_step": 1200000,
+      "schedule": "linear_slow",
+      "agent": "Q-learning"
+    },
+    "Q-learning_linear_fast": {
+      "path": "results\\eps_Q-learning_linear_fast_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0343,
+      "best_wait_i": 2.933333333333333,
+      "best_step": 200000,
+      "schedule": "linear_fast",
+      "agent": "Q-learning"
+    },
+    "Q-learning_exp_default": {
+      "path": "results\\eps_Q-learning_exp_default_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0392,
+      "best_wait_i": 3.088888888888889,
+      "best_step": 400000,
+      "schedule": "exp_default",
+      "agent": "Q-learning"
+    },
+    "Q-learning_exp_slow": {
+      "path": "results\\eps_Q-learning_exp_slow_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0398,
+      "best_wait_i": 3.3555555555555556,
+      "best_step": 800000,
+      "schedule": "exp_slow",
+      "agent": "Q-learning"
+    },
+    "Q-learning_exp_fast": {
+      "path": "results\\eps_Q-learning_exp_fast_mixed_lam0.001\\best.npz",
+      "best_reward": -0.04,
+      "best_wait_i": 3.3555555555555556,
+      "best_step": 2200000,
+      "schedule": "exp_fast",
+      "agent": "Q-learning"
+    },
+    "SARSA_const_eps1.0": {
+      "path": "results\\eps_SARSA_const_eps1.0_mixed_lam0.001\\best.npz",
+      "best_reward": -328.7938,
+      "best_wait_i": 267.68888888888887,
+      "best_step": 800000,
+      "schedule": "const_eps1.0",
+      "agent": "SARSA"
+    },
+    "SARSA_const_eps0.5": {
+      "path": "results\\eps_SARSA_const_eps0.5_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0448,
+      "best_wait_i": 3.2,
+      "best_step": 800000,
+      "schedule": "const_eps0.5",
+      "agent": "SARSA"
+    },
+    "SARSA_const_eps0.1": {
+      "path": "results\\eps_SARSA_const_eps0.1_mixed_lam0.001\\best.npz",
+      "best_reward": -0.036,
+      "best_wait_i": 3.1777777777777776,
+      "best_step": 3400000,
+      "schedule": "const_eps0.1",
+      "agent": "SARSA"
+    },
+    "SARSA_const_eps0.01": {
+      "path": "results\\eps_SARSA_const_eps0.01_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0487,
+      "best_wait_i": 3.511111111111111,
+      "best_step": 4800000,
+      "schedule": "const_eps0.01",
+      "agent": "SARSA"
+    },
+    "SARSA_linear_default": {
+      "path": "results\\eps_SARSA_linear_default_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0347,
+      "best_wait_i": 3.1555555555555554,
+      "best_step": 4600000,
+      "schedule": "linear_default",
+      "agent": "SARSA"
+    },
+    "SARSA_linear_slow": {
+      "path": "results\\eps_SARSA_linear_slow_mixed_lam0.001\\best.npz",
+      "best_reward": -0.046,
+      "best_wait_i": 3.1555555555555554,
+      "best_step": 2400000,
+      "schedule": "linear_slow",
+      "agent": "SARSA"
+    },
+    "SARSA_linear_fast": {
+      "path": "results\\eps_SARSA_linear_fast_mixed_lam0.001\\best.npz",
+      "best_reward": -0.037,
+      "best_wait_i": 3.111111111111111,
+      "best_step": 3600000,
+      "schedule": "linear_fast",
+      "agent": "SARSA"
+    },
+    "SARSA_exp_default": {
+      "path": "results\\eps_SARSA_exp_default_mixed_lam0.001\\best.npz",
+      "best_reward": -0.2005,
+      "best_wait_i": 4.733333333333333,
+      "best_step": 4400000,
+      "schedule": "exp_default",
+      "agent": "SARSA"
+    },
+    "SARSA_exp_slow": {
+      "path": "results\\eps_SARSA_exp_slow_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0354,
+      "best_wait_i": 3.2,
+      "best_step": 1000000,
+      "schedule": "exp_slow",
+      "agent": "SARSA"
+    },
+    "SARSA_exp_fast": {
+      "path": "results\\eps_SARSA_exp_fast_mixed_lam0.001\\best.npz",
+      "best_reward": -0.0443,
+      "best_wait_i": 3.2,
+      "best_step": 4200000,
+      "schedule": "exp_fast",
+      "agent": "SARSA"
+    }
+  },
+  "total_time_seconds": 2398.81214594841
+}

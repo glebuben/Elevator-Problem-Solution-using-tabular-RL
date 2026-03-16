@@ -1,0 +1,202 @@
+[
+  {
+    "step": 200000,
+    "epsilon": 0.3981071705519818,
+    "avg_reward": -0.0551,
+    "avg_wait_i": 3.1555555555555554,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 400000,
+    "epsilon": 0.15848931924490475,
+    "avg_reward": -827.4364,
+    "avg_wait_i": 349.26666666666665,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 600000,
+    "epsilon": 0.06309573444729878,
+    "avg_reward": -476.9015,
+    "avg_wait_i": 251.8,
+    "served": 42,
+    "is_best": false
+  },
+  {
+    "step": 800000,
+    "epsilon": 0.025118864314713333,
+    "avg_reward": -534.6027,
+    "avg_wait_i": 268.26666666666665,
+    "served": 43,
+    "is_best": false
+  },
+  {
+    "step": 1000000,
+    "epsilon": 0.01,
+    "avg_reward": -237.119,
+    "avg_wait_i": 123.17777777777778,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1200000,
+    "epsilon": 0.01,
+    "avg_reward": -22.7915,
+    "avg_wait_i": 18.2,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1400000,
+    "epsilon": 0.01,
+    "avg_reward": -495.5091,
+    "avg_wait_i": 283.5111111111111,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1600000,
+    "epsilon": 0.01,
+    "avg_reward": -264.447,
+    "avg_wait_i": 143.6,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 1800000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0425,
+    "avg_wait_i": 3.5555555555555554,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 2000000,
+    "epsilon": 0.01,
+    "avg_reward": -7.578,
+    "avg_wait_i": 16.644444444444446,
+    "served": 44,
+    "is_best": false
+  },
+  {
+    "step": 2200000,
+    "epsilon": 0.01,
+    "avg_reward": -0.04,
+    "avg_wait_i": 3.3555555555555556,
+    "served": 45,
+    "is_best": true
+  },
+  {
+    "step": 2400000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0428,
+    "avg_wait_i": 3.533333333333333,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0515,
+    "avg_wait_i": 3.311111111111111,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 2800000,
+    "epsilon": 0.01,
+    "avg_reward": -73.4275,
+    "avg_wait_i": 52.82222222222222,
+    "served": 44,
+    "is_best": false
+  },
+  {
+    "step": 3000000,
+    "epsilon": 0.01,
+    "avg_reward": -0.1225,
+    "avg_wait_i": 4.555555555555555,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3200000,
+    "epsilon": 0.01,
+    "avg_reward": -26.0421,
+    "avg_wait_i": 35.48888888888889,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3400000,
+    "epsilon": 0.01,
+    "avg_reward": -27.1923,
+    "avg_wait_i": 25.844444444444445,
+    "served": 43,
+    "is_best": false
+  },
+  {
+    "step": 3600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.071,
+    "avg_wait_i": 3.7333333333333334,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 3800000,
+    "epsilon": 0.01,
+    "avg_reward": -146.1212,
+    "avg_wait_i": 109.37777777777778,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4000000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0814,
+    "avg_wait_i": 3.7111111111111112,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4200000,
+    "epsilon": 0.01,
+    "avg_reward": -24.3455,
+    "avg_wait_i": 34.13333333333333,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4400000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0605,
+    "avg_wait_i": 3.7333333333333334,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4600000,
+    "epsilon": 0.01,
+    "avg_reward": -0.2862,
+    "avg_wait_i": 4.933333333333334,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 4800000,
+    "epsilon": 0.01,
+    "avg_reward": -0.061,
+    "avg_wait_i": 3.6444444444444444,
+    "served": 45,
+    "is_best": false
+  },
+  {
+    "step": 5000000,
+    "epsilon": 0.01,
+    "avg_reward": -0.0547,
+    "avg_wait_i": 3.533333333333333,
+    "served": 45,
+    "is_best": false
+  }
+]
