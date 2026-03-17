@@ -148,7 +148,7 @@ This is a **sequential decision-making problem under uncertainty**: the controll
 
 The state is a 6-tuple:
 
-$$s = (\text{floor}, \text{direction}, \text{up\_calls}, \text{down\_calls}, \text{car\_calls}, \text{num\_passengers})$$
+$$s = (\text{floor}, \text{direction}, \text{up\\_calls}, \text{down\\_calls}, \text{car\\_calls}, \text{num\\_passengers})$$
 
 | Component | Range | Description |
 |---|---|---|
@@ -169,7 +169,7 @@ $$|\mathcal{S}| = 5 \times 3 \times 16 \times 16 \times 112 = 430{,}080 \text{ s
 
 At each time step the controller selects one of four actions:
 
-$$\mathcal{A} = \{\text{MOVE\_UP},\; \text{MOVE\_DOWN},\; \text{STOP},\; \text{WAIT}\}$$
+$$\mathcal{A} = \{\text{MOVE\\_UP},\; \text{MOVE\\_DOWN},\; \text{STOP},\; \text{WAIT}\}$$
 
 | Action | Effect |
 |---|---|
@@ -250,7 +250,7 @@ This pattern presents the most complex optimization challenge, as the elevator m
 
 The reward at each step is the negative sum of accumulated waiting times across all active hall calls, plus a penalty for each active car call:
 
-$$R_t = -\sum_{f=0}^{4} \Big[ \mathbb{1}[\text{up\_button}_f \text{ active}] \cdot (t - t_{\text{up\_pressed}}^f) + \mathbb{1}[\text{down\_button}_f \text{ active}] \cdot (t - t_{\text{down\_pressed}}^f) \Big] - \sum_{f=0}^{4} \mathbb{1}[\text{car\_call}_f \text{ active}]$$
+$$R_t = -\sum_{f=0}^{4} \left[ \mathbb{1}[\text{up\\_button}_f \text{ active}] \cdot (t - t_{\text{up\\_pressed}}^{f}) + \mathbb{1}[\text{down\\_button}_f \text{ active}] \cdot (t - t_{\text{down\\_pressed}}^{f}) \right] - \sum_{f=0}^{4} \mathbb{1}[\text{car\\_call}_f \text{ active}]$$
 
 This reward is **always non-positive**: zero is the best possible (no one waiting). The longer people wait, the more negative the reward becomes, growing quadratically with waiting time. This strongly incentivizes the agent to serve passengers quickly.
 
@@ -270,7 +270,7 @@ $$Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \Big[ r_{t+1} + \gamma \max_{a'} Q
 
 The key feature is the $\max$ operator in the target: the update always uses the **best** possible next action, even if the agent actually chose a different (exploratory) action. This is analogous to **value iteration** in dynamic programming:
 
-$$V^*(s) = \max_a \Big[ R(s, a) + \gamma \sum_{s'} P(s' | s, a) V^*(s') \Big]$$
+$$V^{*}(s) = \max_a \left[ R(s, a) + \gamma \sum_{s'} P(s' | s, a) V^{*}(s') \right]$$
 
 **Properties:**
 - **Off-policy**: Learns the optimal policy while following any exploratory policy
@@ -283,7 +283,7 @@ SARSA estimates the action-value function of the **current** policy $Q^\pi(s, a)
 
 **Update rule:**
 
-$$Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \Big[ r_{t+1} + \gamma \, Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t) \Big]$$
+$$Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \left[ r_{t+1} + \gamma \, Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t) \right]$$
 
 The critical difference: instead of $\max_{a'} Q(s_{t+1}, a')$, SARSA uses $Q(s_{t+1}, a_{t+1})$ — the Q-value of the action **actually taken** in the next state. The name SARSA comes from the quintuple $(S_t, A_t, R_{t+1}, S_{t+1}, A_{t+1})$ used in each update. This is analogous to **policy iteration**:
 
