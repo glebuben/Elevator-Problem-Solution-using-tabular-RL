@@ -270,7 +270,7 @@ $$Q(s_t, a_t) \leftarrow Q(s_t, a_t) + \alpha \Big[ r_{t+1} + \gamma \max_{a'} Q
 
 The key feature is the $\max$ operator in the target: the update always uses the **best** possible next action, even if the agent actually chose a different (exploratory) action. This is analogous to **value iteration** in dynamic programming:
 
-$$V^{*}(s) = \max_a \left[ R(s, a) + \gamma \sum_{s'} P(s' | s, a) V^{*}(s') \right]$$
+$$V^*(s) = \max_a \left[ R(s, a) + \gamma \sum_{s'} P(s' | s, a) V^*(s') \right]$$
 
 **Properties:**
 - **Off-policy**: Learns the optimal policy while following any exploratory policy
