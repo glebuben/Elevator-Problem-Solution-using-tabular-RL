@@ -2,8 +2,8 @@
 """Visualize training progress from checkpoints and eval history.
 
 Usage:
-    python -m src.visualize results/Q-learning_uniform_lam0.05
-    python -m src.visualize results/Q-learning_uniform_lam0.05 \
+    python -m src.visualize results/checkpoints/Q-learning_uniform_lam0.05
+    python -m src.visualize results/checkpoints/Q-learning_uniform_lam0.05 \
                             --checkpoint_eval --lam 0.05
 """
 

@@ -153,11 +153,13 @@ $$s = (\text{floor}, \text{direction}, \text{up\_calls}, \text{down\_calls}, \te
 | Component | Range | Description |
 |---|---|---|
 | `floor` | $\{0, 1, 2, 3, 4\}$ | Current floor of the elevator car |
-| `direction` | $\{$DOWN, IDLE, UP$\}$ | Last movement direction |
-| `up_calls` | $\{0, \ldots, 15\}$ | 4-bit mask: floors 0–3 with waiting up-passengers |
-| `down_calls` | $\{0, \ldots, 15\}$ | 4-bit mask: floors 1–4 with waiting down-passengers |
+| `direction` | $\{\text{DOWN}, \text{IDLE}, \text{UP}\}$ | Last movement direction of the car |
+| `up_calls` | $\{0, \ldots, 15\}$ | 4-bit mask: floors 0–3 with passengers waiting to go up |
+| `down_calls` | $\{0, \ldots, 15\}$ | 4-bit mask: floors 1–4 with passengers waiting to go down |
 | `car_calls` | $\{0, \ldots, 31\}$ | 5-bit mask: destination floors of onboard passengers |
 | `num_passengers` | $\{0, \ldots, 5\}$ | Count of passengers currently in the car |
+
+The `direction` component records the car's last movement: `UP` if the last action was `MOVE_UP`, `DOWN` if it was `MOVE_DOWN`, and `IDLE` if the last action was `STOP` or `WAIT`. This is important because the `STOP` action uses the current direction to decide which queue to serve — an upward-traveling car picks up passengers going up, a downward-traveling car picks up passengers going down, and an idle car picks up both.
 
 Not all combinations of `car_calls` and `num_passengers` are valid (the number of set bits in `car_calls` cannot exceed `num_passengers`). Accounting for this constraint yields **112** valid `(car_calls, num_passengers)` pairs, giving a total state space of:
 
@@ -199,12 +201,15 @@ The parameter $\lambda$ (lambda) controls the **traffic intensity** — the expe
 
 | $\lambda$ | Traffic Level | Behavior |
 |---|---|---|
-| 0.001 | Very low | Passengers arrive rarely; elevator is idle most of the time |
-| 0.01 | Low | Moderate flow; elevator can keep up easily |
-| 0.05 | Medium | Steady stream; queues build up if the policy is inefficient |
-| 0.1 | High | Heavy traffic; even good policies struggle with capacity limits |
+| 0.001 | Very low | Passengers arrive rarely (~1 every 200 steps); elevator is idle most of the time. All policies can serve everyone. |
+| 0.005 | Low | Light but steady flow; good policies keep queues empty, poor policies begin to accumulate delays. |
+| 0.01 | Moderate | Continuous demand; even heuristic baselines leave passengers in queues at evaluation end. Queues grow under suboptimal policies. |
+| 0.05 | High | Heavy traffic; the elevator is nearly always occupied. All policies struggle with capacity limits; queue management becomes critical. |
+| 0.1 | Very high | Arrival rate exceeds service capacity. Queues grow unboundedly regardless of policy. Only useful for stress testing. |
 
-At $\lambda = 0.05$ with 5 floors, the expected total arrival rate across all floors is $\lambda \times F = 0.25$ passengers per time step, or one passenger every 4 steps on average.
+At $\lambda = 0.001$ with 5 floors, the expected total arrival rate across all floors is $\lambda \times F = 0.005$ passengers per time step, or roughly one passenger every 200 steps. At $\lambda = 0.01$, this rises to one passenger every 20 steps — enough that the elevator must work continuously and even well-designed heuristics (LOOK, Nearest Call) leave 1–2 passengers unserved at the end of a 10,000-step evaluation.
+
+The transition from $\lambda = 0.001$ to $\lambda = 0.01$ represents the boundary of what our tabular RL agents can handle: at $\lambda = 0.001$ they outperform all baselines, while at $\lambda = 0.01$ they fail catastrophically (see §7.5 and §7.10).
 
 ### 3.6 Traffic Patterns
 
@@ -367,7 +372,61 @@ A greedy heuristic that always moves toward the **closest active call** (priorit
 
 ## 6. Experiments
 
-### 6.1 Primary Experiments (`experiments.py`)
+### 6.1 Training Procedure
+
+Training follows an online, single-stream interaction loop. A single environment instance runs continuously, and the agent updates its Q-table after every time step. The procedure differs slightly between Q-learning and SARSA due to their on-policy vs off-policy nature:
+
+**Q-learning loop:**
+```
+initialize environment, observe state s
+loop for each step:
+    choose action a from s using ε-greedy
+    take action a, observe reward r, next state s'
+    update: Q(s,a) ← Q(s,a) + α[r + γ max_a' Q(s',a') - Q(s,a)]
+    s ← s'
+```
+
+**SARSA loop:**
+```
+initialize environment, observe state s
+choose action a from s using ε-greedy
+loop for each step:
+    take action a, observe reward r, next state s'
+    choose next action a' from s' using ε-greedy
+    update: Q(s,a) ← Q(s,a) + α[r + γ Q(s',a') - Q(s,a)]
+    s ← s', a ← a'
+```
+
+The key difference is that SARSA must select the next action **before** the update (since the update depends on it), whereas Q-learning can select the next action at any time (since the update uses max).
+
+#### Environment Resets
+
+The environment is **reset every 50,000 steps** during training. A reset clears all passenger queues, empties the elevator car, returns the car to floor 0, and sets the direction to IDLE. The time counter resets to zero.
+
+Resets serve two purposes:
+
+1. **Preventing state drift.** Without resets, the continuous Poisson arrival process can occasionally create pathological situations — especially during early training when the agent acts nearly randomly ($\varepsilon \approx 1.0$). Random actions cause passengers to accumulate in long queues, the reward becomes an enormous negative constant, and the Q-value updates become dominated by these extreme penalties. The agent gets trapped learning about "recovery from disaster" rather than "normal efficient operation."
+
+2. **Diversifying initial conditions.** By periodically starting from an empty building, the agent encounters the common trajectory of states that arise when the system is lightly loaded — which is the regime where its learned policy will actually be deployed during evaluation. Without resets, the agent at low $\lambda$ would spend most of training in states with zero or one pending call (since it eventually learns to serve them quickly), and rarely practice the more complex multi-call scenarios that occur right after a fresh start or a burst of arrivals.
+
+The reset interval of 50,000 steps was chosen to balance these concerns: long enough for the agent to experience sustained multi-passenger scenarios, short enough to prevent runaway queue accumulation during early random exploration.
+
+#### Evaluation During Training
+
+Every 200,000 training steps, the current policy is evaluated **greedily** ($\varepsilon = 0$) on a separate environment instance with a fixed random seed. This evaluation runs for 10,000 steps and measures average reward, wait times, and throughput. The Q-table that achieves the highest average reward during any evaluation checkpoint is saved as the "best" model.
+
+Using a fixed evaluation seed ensures that all checkpoints and all agents are compared on the **exact same sequence of passenger arrivals**, eliminating variance from the stochastic arrival process.
+
+#### Checkpoint Saving
+
+The training loop saves the full Q-table at two granularities:
+
+- **Periodic checkpoints** every 500,000 steps: these capture the agent's knowledge at intermediate stages and enable post-hoc analysis of learning dynamics (e.g., how Q-value distributions evolve, when the agent first discovers good behaviors).
+- **Best checkpoint**: overwritten whenever a new evaluation sets a record for highest average reward. This is the model used in final comparisons.
+
+Each saved file (`.npz`) contains the Q-table array alongside a JSON metadata blob recording all hyperparameters, the training configuration, the current epsilon value, and (for the best checkpoint) the evaluation metrics at that point.
+
+### 6.2 Primary Experiments (`experiments.py`)
 
 The main experiment suite trains both Q-learning and SARSA across all configurations:
 
@@ -381,28 +440,31 @@ The main experiment suite trains both Q-learning and SARSA across all configurat
 
 **Training configuration:**
 
-| Parameter | Value |
-|---|---|
-| Training steps | 5,000,000 |
-| Learning rate $\alpha$ | 0.1 |
-| Discount factor $\gamma$ | 0.99 |
-| $\varepsilon$ schedule | Linear: $1.0 \to 0.01$ over 2,500,000 steps |
-| Initial Q-values | $-5.0$ |
-| Environment reset interval | Every 50,000 steps |
-| Evaluation interval | Every 200,000 steps |
-| Evaluation length | 10,000 steps |
-| Elevator capacity | 5 passengers |
+| Parameter | Value | Rationale |
+|---|---|---|
+| Training steps | 5,000,000 | Minimum to outperform baselines (see §8.3) |
+| Learning rate $\alpha$ | 0.1 | Best empirical performance (see §8.2) |
+| Discount factor $\gamma$ | 0.99 | Balances planning horizon vs variance |
+| $\varepsilon$ schedule | Linear: $1.0 \to 0.01$ over 2.5M steps | Default; ablation in §6.3 |
+| Initial Q-values | $-5.0$ | Mildly optimistic: encourages trying all actions |
+| Environment reset interval | 50,000 steps | Prevents queue runaway during exploration |
+| Evaluation interval | 200,000 steps | 25 evaluations per run |
+| Evaluation length | 10,000 steps | Sufficient for stable metrics at $\lambda = 0.001$ |
+| Evaluation seed | 42 | Fixed for reproducibility |
+| Elevator capacity | 5 passengers | |
 
-### 6.2 Epsilon Decay Ablation (`experiments_epsilon.py`)
+The Q-table has $430{,}080 \times 4 = 1{,}720{,}320$ entries, consuming approximately 13.2 MB of memory as 64-bit floats. At 5 million training steps, each state-action pair is visited on average $\approx 2.9$ times — though the actual distribution is highly non-uniform, with common states (car at floor 0, idle, no calls) visited thousands of times and rare states (car full, all buttons pressed) visited zero times.
 
-We systematically test how the exploration schedule affects final performance. All runs use **mixed traffic** at $\lambda = 0.001$:
+### 6.3 Epsilon Decay Ablation (`experiments_epsilon.py`)
+
+We systematically test how the exploration schedule affects final performance. All runs use **mixed traffic** at $\lambda = 0.001$ with the same training configuration as §6.2 except for the epsilon schedule:
 
 | Schedule | Type | Parameters |
 |---|---|---|
-| `const_eps1.0` | No decay | $\varepsilon = 1.0$ (fully random) |
+| `const_eps1.0` | No decay | $\varepsilon = 1.0$ (fully random forever) |
 | `const_eps0.5` | No decay | $\varepsilon = 0.5$ |
 | `const_eps0.1` | No decay | $\varepsilon = 0.1$ |
-| `const_eps0.01` | No decay | $\varepsilon = 0.01$ (nearly greedy) |
+| `const_eps0.01` | No decay | $\varepsilon = 0.01$ (nearly greedy forever) |
 | `linear_default` | Linear | $1.0 \to 0.01$ over 50% of training |
 | `linear_slow` | Linear | $1.0 \to 0.01$ over 90% of training |
 | `linear_fast` | Linear | $1.0 \to 0.01$ over 20% of training |
@@ -410,21 +472,23 @@ We systematically test how the exploration schedule affects final performance. A
 | `exp_slow` | Exponential | Reaches $0.01$ at 90% of training |
 | `exp_fast` | Exponential | Reaches $0.01$ at 20% of training |
 
-This gives **10 schedules × 2 agents = 20 training runs** for the full ablation.
+This gives **10 schedules × 2 agents = 20 training runs** for the full ablation. All other parameters (α, γ, Q₀, reset interval, evaluation protocol) remain identical to the primary experiments to ensure a fair comparison.
 
-### 6.3 Evaluation Metrics
+### 6.4 Evaluation Metrics
 
-We report several complementary metrics:
+We report several complementary metrics to capture different aspects of elevator performance:
 
 | Metric | Notation | Description |
 |---|---|---|
-| Avg reward/step | `Rew/step` | Mean per-step reward (higher = better) |
+| Avg reward/step | `Rew/step` | Mean per-step reward (higher = better, always ≤ 0) |
 | Wait time (completed) | `Wait(c)` | Mean time from arrival to boarding, for passengers who boarded |
-| System time (completed) | `Sys(c)` | Mean time from arrival to delivery, for passengers who were delivered |
-| Wait time (inclusive) | `Wait(i)` | Same as Wait(c) but includes passengers still waiting at evaluation end |
+| System time (completed) | `Sys(c)` | Mean time from arrival to delivery, for passengers delivered |
+| Wait time (inclusive) | `Wait(i)` | Same as Wait(c) but includes passengers still in queue at evaluation end |
 | System time (inclusive) | `Sys(i)` | Same as Sys(c) but includes all pending passengers |
 | Served | `Served` | Total passengers delivered to destination |
-| Still waiting | `Queue` | Passengers still in queues at evaluation end |
+| Still waiting | `Queue` | Passengers remaining in queues at evaluation end |
+
+The "inclusive" metrics prevent policies from gaming the system by ignoring hard-to-serve passengers: a policy that serves 90% of passengers quickly but abandons 10% would score well on completed metrics but poorly on inclusive ones. At low $\lambda$, the completed and inclusive metrics are typically identical since all passengers get served.
 
 ---
 
@@ -561,6 +625,77 @@ All runs on mixed traffic, $\lambda = 0.001$, 5M training steps.
 
 ![Q-values SARSA](results/figures/qvalues_sarsa_uniform.png)
 *Figure 8: Distribution of learned Q-values for the best SARSA policy (uniform traffic).*
+
+### 7.10 Generalization: Low-Traffic Policies Under High Load
+
+To test whether policies learned at $\lambda = 0.001$ generalize to higher demand, we evaluate the same saved models at $\lambda = 0.01$ (10× the training arrival rate) without any retraining. This is a strict test: the agent encounters states it has never seen during training — multiple simultaneous hall calls, consistently full elevators — and must rely on whatever structure it learned from sparse traffic.
+
+#### Uniform Traffic (trained $\lambda = 0.001$, evaluated $\lambda = 0.01$)
+
+| Policy | Rew/step | Wait(c) | Sys(c) | Wait(i) | Sys(i) | Served | Queue |
+|---|---|---|---|---|---|---|---|
+| Random | -86.753 | 47.25 | 77.55 | 47.12 | 77.05 | 509 | 2 |
+| SCAN | -0.920 | 5.24 | 8.36 | 5.23 | 8.34 | 511 | 2 |
+| **LOOK** | **-0.554** | **3.75** | **7.25** | **3.75** | **7.24** | 511 | 0 |
+| Nearest | -0.626 | 3.95 | 7.37 | 3.95 | 7.35 | 511 | 0 |
+| Q-learning (trained λ=0.001) | -88.248 | 41.83 | 68.38 | 41.68 | 68.12 | 511 | 2 |
+| SARSA (trained λ=0.001) | -151.029 | 63.59 | 100.42 | 63.54 | 99.80 | 505 | 8 |
+
+#### Up-Peak Traffic (trained $\lambda = 0.001$, evaluated $\lambda = 0.01$)
+
+| Policy | Rew/step | Wait(c) | Sys(c) | Wait(i) | Sys(i) | Served | Queue |
+|---|---|---|---|---|---|---|---|
+| Random | -333.905 | 107.45 | 140.32 | 107.11 | 139.84 | 482 | 2 |
+| SCAN | -0.900 | 5.41 | 8.94 | 5.41 | 8.94 | 484 | 0 |
+| **LOOK** | **-0.608** | **4.19** | **7.92** | **4.19** | **7.92** | 484 | 0 |
+| Nearest | -0.672 | 4.36 | 7.89 | 4.36 | 7.89 | 484 | 0 |
+| Q-learning (trained λ=0.001) | -177.278 | 73.03 | 105.88 | 72.83 | 105.64 | 480 | 2 |
+| SARSA (trained λ=0.001) | -422.604 | 157.39 | 196.74 | 157.39 | 196.17 | 482 | 0 |
+
+#### Down-Peak Traffic (trained $\lambda = 0.001$, evaluated $\lambda = 0.01$)
+
+| Policy | Rew/step | Wait(c) | Sys(c) | Wait(i) | Sys(i) | Served | Queue |
+|---|---|---|---|---|---|---|---|
+| Random | -118.174 | 56.41 | 92.44 | 56.41 | 92.09 | 512 | 2 |
+| SCAN | -0.988 | 5.50 | 9.10 | 5.49 | 9.09 | 515 | 1 |
+| **LOOK** | **-0.660** | **4.25** | **8.24** | **4.25** | **8.23** | 515 | 1 |
+| Nearest | -0.800 | 4.41 | 8.14 | 4.41 | 8.13 | 515 | 1 |
+| Q-learning (trained λ=0.001) | -104.642 | 46.75 | 74.70 | 46.75 | 74.56 | 515 | 0 |
+| SARSA (trained λ=0.001) | -290.749 | 90.04 | 124.18 | 89.76 | 123.35 | 511 | 2 |
+
+#### Mixed Traffic (trained $\lambda = 0.001$, evaluated $\lambda = 0.01$)
+
+| Policy | Rew/step | Wait(c) | Sys(c) | Wait(i) | Sys(i) | Served | Queue |
+|---|---|---|---|---|---|---|---|
+| Random | -125.227 | 55.42 | 89.79 | 55.42 | 89.31 | 503 | 7 |
+| SCAN | -0.969 | 5.43 | 8.85 | 5.42 | 8.82 | 508 | 2 |
+| **LOOK** | **-0.593** | **3.87** | **7.52** | **3.87** | **7.50** | 508 | 2 |
+| Nearest | -0.598 | 3.95 | 7.56 | 3.94 | 7.54 | 508 | 2 |
+| Q-learning (trained λ=0.001) | -101.401 | 48.61 | 74.00 | 48.43 | 73.52 | 506 | 2 |
+| SARSA (trained λ=0.001) | -168.440 | 62.35 | 96.70 | 62.03 | 96.04 | 506 | 3 |
+
+#### Generalization Summary
+
+| Traffic | Best Baseline Wait(i) | Q-learn Wait(i) | SARSA Wait(i) | Q-learn vs Baseline | SARSA vs Baseline |
+|---|---|---|---|---|---|
+| Uniform | 3.75 (LOOK) | 41.68 | 63.54 | 11.1× worse | 16.9× worse |
+| Up-peak | 4.19 (LOOK) | 72.83 | 157.39 | 17.4× worse | 37.6× worse |
+| Down-peak | 4.25 (LOOK) | 46.75 | 89.76 | 11.0× worse | 21.1× worse |
+| Mixed | 3.87 (LOOK) | 48.43 | 62.03 | 12.5× worse | 16.0× worse |
+
+#### Comparison: Trained at $\lambda = 0.01$ vs Transferred from $\lambda = 0.001$
+
+For uniform traffic, we can compare RL agents that were **trained at** $\lambda = 0.01$ (§7.5) against those **transferred from** $\lambda = 0.001$:
+
+| Agent | Trained at | Wait(i) at $\lambda = 0.01$ | Notes |
+|---|---|---|---|
+| Q-learning | λ=0.01 | 186.82 | Trained on high traffic directly |
+| Q-learning | λ=0.001 | 41.68 | Transferred from low traffic |
+| SARSA | λ=0.01 | 139.42 | Trained on high traffic directly |
+| SARSA | λ=0.001 | 63.54 | Transferred from low traffic |
+| LOOK | — | 3.75 | Heuristic, no training |
+
+Surprisingly, the **transferred policies outperform the directly-trained ones** by a large margin (Q-learning: 41.68 vs 186.82). This reveals that training at high $\lambda$ is actively harmful: the agent trained at $\lambda = 0.01$ receives such noisy, uninformative reward signals that it learns a worse policy than one trained in a clean low-traffic regime and deployed out-of-distribution. The low-traffic policy at least learned reasonable directional heuristics (serve the nearest call, continue in the current direction), which partially transfer even when overwhelmed.
 
 ---
 
